@@ -26,7 +26,7 @@ class Jerome: public QObject
 
 public:
 	Jerome(QObject* parent);
-	Jerome (const Jerome&) = delete;
-	Jerome (Jerome&&) = default;
+	Jerome(const Jerome&) = delete;
+	Jerome(Jerome&&) = default;
 };
 
