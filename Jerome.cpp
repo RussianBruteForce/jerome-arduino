@@ -18,6 +18,7 @@
 #include "Jerome.h"
 
 
-Jerome::Jerome()
+Jerome::Jerome(QObject *parent):
+        QObject(parent)
 {
 }

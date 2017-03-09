@@ -15,12 +15,18 @@
  *    along with jerome-arduino, look at LICENSE file.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
 
-class Jerome
+#include <QObject>
+#include <QString>
+
+class Jerome: public QObject
 {
+	Q_OBJECT
 
 public:
-	Jerome();
+	Jerome(QObject* parent);
+	Jerome (const Jerome&) = delete;
+	Jerome (Jerome&&) = default;
 };
 
-#endif // JEROME_H
