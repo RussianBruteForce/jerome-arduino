@@ -4,13 +4,12 @@
 #
 #-------------------------------------------------
 
-QT       += network
-
 QT       -= gui
+QT       += network
 
 TARGET = jerome-arduino
 TEMPLATE = lib
-CONFIG += staticlib
+CONFIG += staticlib c++14
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
