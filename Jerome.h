@@ -53,8 +53,8 @@ public:
 	using line_t = uint_fast8_t;
 	struct Line {
 		enum class Type {
-			IN,
-			OUT
+			OUT,
+			IN
 		};
 		enum class Value {
 			UNKNOWN = -1,
@@ -64,8 +64,8 @@ public:
 			LAST_HIGH
 		};
 
-		Type type;
-		Value value;
+		Type type{Type::OUT};
+		Value value{Value::LOW};
 
 		Type reverse(Type t) {
 			return t == Type::IN ? Type::OUT : Type::IN;
@@ -186,6 +186,7 @@ public:
 
 	static void print(const QVector<Line>& lines);
 	void print() const { print(getLines()); }
+	bool autoUpdate() { return autoUpdate_; }
 
 #define LINE(L__) \
 	Line::Type line##L__##Type() const { return lines[L__].type; } \
@@ -253,7 +254,9 @@ signals:
 
 public slots:
 	void connectToDevice(const QString &host, uint16_t port = DEFAULT_PORT);
+	void setAutoUpdate(bool status);
 	void check() const;
+	void manualUpdate() { print(); updateState(); }
 	void high(line_t line);
 	void low(line_t line);
 	void setIn(line_t line);
@@ -276,6 +279,7 @@ private:
 	using ValueConfirmationQueue = ConfirmationQueue<line_t, Line::Value>;
 	std::unique_ptr<TypeConfirmationQueue> typeConfirmationQueue;
 	std::unique_ptr<ValueConfirmationQueue> valueConfirmationQueue;
+	bool autoUpdate_{true};
 
 	void valueConfirmator(line_t line, Line::Value value);
 	void typeConfirmator(line_t line, Line::Type type);

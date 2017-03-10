@@ -58,6 +58,16 @@ void Jerome::connectToDevice(const QString &host, uint16_t port)
 	socket->connectToHost(host, port);
 }
 
+void Jerome::setAutoUpdate(bool status)
+{
+	if (status) {
+		command("DAT", "ON");
+	} else {
+		command("DAT", "OFF");
+	}
+	autoUpdate_ = status;
+}
+
 void Jerome::check() const
 {
 	send(QByteArray("$KE\r\n"));
@@ -124,6 +134,7 @@ void Jerome::setLine(Jerome::line_t line, Jerome::Line::Type type)
 void Jerome::onSocketConnected()
 {
 	updateState();
+	setAutoUpdate(autoUpdate_);
 	emit connected();
 }
 
@@ -277,23 +288,24 @@ void Jerome::handleOneArg(const QByteArray& answer)
 
 void Jerome::handleRID(Jerome::Line::Type type, const QByteArray &answer)
 {
+	auto isOut = [type] () { return type == Jerome::Line::Type::OUT; };
+
 	for (auto i = 0; i < lines.size(); ++i) {
 		auto value = Line::Value::UNKNOWN;
 		if (answer[i] == '1') {
-			value = Line::Value::HIGH;
+			value = isOut() ? Line::Value::HIGH : Line::Value::LAST_HIGH;
 		} else if (answer[i] == '0') {
-			value = Line::Value::LOW;
+			value = isOut() ? Line::Value::LOW : Line::Value::LAST_LOW;
 		}
-
 		if (value != Line::Value::UNKNOWN) {
 			auto& line = lines[i];
+			line.doIfNot(value, [&] () {
+				line.value = value;
+				emit lineValueChanged(i, value);
+			});
 			line.doIfNot(type, [&] () {
 				line.type = type;
 				emit lineTypeChanged(i, type);
-			});
-			line.doIfNot(value, [&] () {
-				line.type = type;
-				emit lineValueChanged(i, value);
 			});
 		}
 	}
